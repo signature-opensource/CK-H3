@@ -4,6 +4,7 @@
     <File Path=".gitignore" />
     <File Path="LICENSE" />
     <File Path="NOTICE" />
+    <File Path="README.md" />
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="Tests/CK.H3.Tests/CK.H3.Tests.csproj" />
