@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="LICENSE" />
+    <File Path="NOTICE" />
+  </Folder>
+  <Project Path="CK.H3/CK.H3.csproj" />
+</Solution>
