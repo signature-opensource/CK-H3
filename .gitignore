@@ -1,0 +1,32 @@
+# Visual Studio local state
+.vs/
+
+# Visual Studio build output
+[Bb]in/
+[Oo]bj/
+
+# Application run output
+[Ll]og/
+[Ll]ogs/
+
+# Environment variables file
+appsettings.Development.json
+
+CodeCakeBuilder/UnitTestsDone.*.txt
+Tests/**/TestResult*.xml
+CodeCakeBuilder/MemoryKey.*.txt
+Tests/**/Logs/
+Tests/**/CKSetup-WorkingDir/
+CK.StObj.AutoAssembly.dll.*.cs
+OutputDirectory/
+
+$StObjGen/
+WorkingDir*/
+*.log
+launchSettings.json
+
+CodeCakeBuilder/[Rr]elease/
+CodeCakeBuilder/[Rr]eleases/
+
+PickupDirectory/
+.DS_Store
