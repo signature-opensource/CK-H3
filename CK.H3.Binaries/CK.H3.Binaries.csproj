@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CK.H3\CK.H3.csproj" />
+  </ItemGroup>
+
+  <!--
+    NuGet layout: runtimes/{rid}/native/ is the standard convention.
+    dotnet restore generates the deps.json entries so the runtime resolves the
+    right binary automatically — no platform-detection code needed in the consumer.
+  -->
+  <ItemGroup>
+    <Content Include="runtimes\**\*.*" Pack="true" PackagePath="runtimes/" />
+  </ItemGroup>
+
+  <!--
+    Project-reference builds (e.g. unit tests referencing this project directly)
+    do not go through NuGet restore, so no deps.json entries are generated for the
+    native library.  Including the host-platform binary as a None item with
+    CopyToOutputDirectory="PreserveNewest" propagates it transitively through
+    ProjectReference chains via GetCopyToOutputDirectoryItems.
+    TargetPath places the file at the output root so LibraryImport("h3") finds it.
+  -->
+  <PropertyGroup>
+    <_H3NativeLibName Condition="$(NETCoreSdkRuntimeIdentifier.StartsWith('win'))">h3.dll</_H3NativeLibName>
+    <_H3NativeLibName Condition="$(NETCoreSdkRuntimeIdentifier.StartsWith('linux'))">libh3.so</_H3NativeLibName>
+    <_H3NativeSrc>runtimes\$(NETCoreSdkRuntimeIdentifier)\native\$(_H3NativeLibName)</_H3NativeSrc>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(_H3NativeLibName)' != '' AND Exists('$(_H3NativeSrc)')">
+    <None Include="$(_H3NativeSrc)"
+          CopyToOutputDirectory="PreserveNewest"
+          TargetPath="$(_H3NativeLibName)"
+          Pack="false" />
+  </ItemGroup>
+
+</Project>
