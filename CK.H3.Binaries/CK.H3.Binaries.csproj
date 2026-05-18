@@ -33,10 +33,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(_H3NativeLibName)' != '' AND Exists('$(_H3NativeSrc)')">
-    <None Include="$(_H3NativeSrc)"
-          CopyToOutputDirectory="PreserveNewest"
-          TargetPath="$(_H3NativeLibName)"
-          Pack="false" />
+    <None Include="$(_H3NativeSrc)" CopyToOutputDirectory="PreserveNewest" TargetPath="$(_H3NativeLibName)" Pack="false" />
   </ItemGroup>
 
 </Project>
