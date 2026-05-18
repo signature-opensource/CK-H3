@@ -33,10 +33,17 @@ public class H3IndexTests
     }
 
     [Test]
-    public void BaseCell_IsInValidRange()
+    public void BaseCellNumber_IsInValidRange()
     {
         var cell = H3Index.FromLatLng( SfLat, SfLng, 5 );
-        cell.BaseCell.ShouldBeInRange( 0, 121 );
+        cell.BaseCellNumber.ShouldBeInRange( 0, 121 );
+    }
+
+    [Test]
+    public void ResolutionResDigit_IsInValidRange()
+    {
+        var cell = H3Index.FromLatLng( SfLat, SfLng, 9 );
+        cell.ResolutionResDigit.ShouldBeInRange( 0, 7 );
     }
 
     [Test]

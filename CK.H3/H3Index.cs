@@ -40,7 +40,17 @@ public readonly struct H3Index : IEquatable<H3Index>, IComparable<H3Index>, IFor
     public int Resolution => H3Native.getResolution( _value );
 
     /// <summary>Gets the base cell number of this index (0–121).</summary>
-    public int BaseCell => H3Native.getBaseCellNumber( _value );
+    public int BaseCellNumber => H3Native.getBaseCellNumber( _value );
+
+    /// <summary>Gets the resolution res integer digit (0-7) of this index.</summary>
+    public int ResolutionResDigit => (int)((_value >> ((_maxH3Res - Resolution) * _h3DigitOffset)) & _h3DigitMask);
+
+    /// <summary>Max H3 resolution; H3 version 1 has 16 resolutions, numbered 0 through 15.</summary>
+    const int _maxH3Res = 15;
+    /// <summary>The number of bits in a single H3 resolution digit.</summary>
+    const int _h3DigitOffset = 3;
+    /// <summary>1's in the 3 bits of res 15 digit bits, 0's everywhere else.</summary>
+    const ulong _h3DigitMask = 7;
 
     // ── Cell indexing ─────────────────────────────────────────────────────────
 

@@ -82,7 +82,8 @@ The central type. An `H3Index` is a `readonly struct` wrapping a `ulong` that re
 | `ToLatLng()` | Geographic center of the cell (degrees) |
 | `ToBoundary()` | Boundary polygon (5–6 vertices) |
 | `Resolution` | Resolution level (0–15) |
-| `BaseCell` | Base cell number (0–121) |
+| `BaseCellNumber` | Base cell number (0–121) |
+| `ResolutionResDigit` | Resolution digit at the current resolution level (0–7) |
 | `IsValid` | Validates the index |
 | `IsPentagon` | `true` for the 12 icosahedron-vertex cells |
 
