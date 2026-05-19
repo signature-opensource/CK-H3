@@ -223,3 +223,9 @@ The full list of error codes is available in `H3ErrorCode`.
 This library is licensed under the [Apache License 2.0](LICENSE).
 
 It wraps the [Uber H3 library](https://github.com/uber/h3) (Apache 2.0) and incorporates work from [DGGRID](https://github.com/sahrk/DGGRID) (Copyright 2015 Southern Oregon University). See [NOTICE](NOTICE) for full attribution details.
+
+---
+
+## Generated with Claude Code
+
+This codebase was generated with [Claude Code](https://claude.ai/code), Anthropic's official CLI for Claude.
