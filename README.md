@@ -14,7 +14,7 @@ H3 partitions the Earth's surface into a multi-resolution grid of hexagonal cell
 - **Full H3 API coverage** — cell indexing, hierarchy navigation, grid traversal, polygon rasterization/reconstruction, directed edges, vertices, local IJ coordinates, and geospatial measurements
 - **Idiomatic C# API** — strongly typed structs (`H3Index`, `LatLng`, `CellBoundary`, `CoordIJ`), clear naming conventions, and transparent degree/radian conversion (callers always work in degrees)
 - **Zero managed dependencies** — no external NuGet packages required
-- **Multi-platform native binaries** — prebuilt for `win-x64`, `linux-x64`, `linux-arm64`; any other platform is supported by bringing your own compiled H3 library
+- **Multi-platform native binaries** — prebuilt for `win-x64`, `linux-x64`, `linux-arm64`, `linux-musl-x64`, `linux-musl-arm64`; any other platform is supported by bringing your own compiled H3 library
 - **Safe public surface** — all P/Invoke and pointer arithmetic is encapsulated; the public API is fully safe
 - **Structured error handling** — native errors surface as `H3Exception` with a typed `H3ErrorCode`
 
@@ -27,7 +27,7 @@ The solution ships as two complementary NuGet packages:
 | Package | Description |
 |---|---|
 | `CK.H3` | Managed wrapper only. Use this when you manage native binaries yourself or target a custom runtime. |
-| `CK.H3.Binaries` | Includes `CK.H3` and the prebuilt native `h3` library for `win-x64`, `linux-x64`, and `linux-arm64`. **Recommended for most projects.** |
+| `CK.H3.Binaries` | Includes `CK.H3` and the prebuilt native `h3` library for `win-x64`, `linux-x64`, `linux-arm64`, `linux-musl-x64`, and `linux-musl-arm64`. **Recommended for most projects.** |
 
 ### Installation
 
@@ -192,8 +192,14 @@ The `CK.H3.Binaries` package includes prebuilt native binaries for the following
 | Runtime Identifier | Architecture | OS |
 |---|---|---|
 | `win-x64` | x64 | Windows |
-| `linux-x64` | x64 | Linux |
-| `linux-arm64` | ARM64 | Linux |
+| `linux-x64` | x64 | Linux with glibc 2.29 or later (Debian, Ubuntu, Fedora, Arch, ...) |
+| `linux-arm64` | ARM64 | Linux with glibc 2.29 or later |
+| `linux-musl-x64` | x64 | Linux with musl (Alpine) |
+| `linux-musl-arm64` | ARM64 | Linux with musl (Alpine) |
+
+The .NET runtime selects the binary: on Alpine, it uses the `linux-musl-*` folder before the `linux-*` folder.
+
+The Linux binaries are H3 v4.4.1. `CK.H3.Binaries/build-native.sh` builds them again in Docker containers (Debian bookworm for glibc, Alpine 3.23 for musl).
 
 **Other platforms (macOS, Linux ARM32, etc.):** use the `CK.H3` package alone and provide the native H3 library yourself. Compile H3 from [source](https://github.com/uber/h3) and make sure the resulting binary (`h3.dll`, `libh3.so`, or `libh3.dylib`) is resolvable at runtime — either placed next to your application's output or available on the system library path (`PATH` on Windows, `LD_LIBRARY_PATH` or `ldconfig` on Linux/macOS). No code or configuration changes are needed in `CK.H3` itself.
 

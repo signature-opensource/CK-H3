@@ -25,11 +25,19 @@
     CopyToOutputDirectory="PreserveNewest" propagates it transitively through
     ProjectReference chains via GetCopyToOutputDirectoryItems.
     TargetPath places the file at the output root so LibraryImport("h3") finds it.
+
+    The host RID is computed from the OS and the architecture, not from NETCoreSdkRuntimeIdentifier:
+    a distribution-built SDK reports a RID like "ubuntu.24.04-x64" that matches no runtimes folder.
+    Linux hosts use the glibc build, except Alpine (or a musl SDK) that uses the musl build.
   -->
   <PropertyGroup>
-    <_H3NativeLibName Condition="$(NETCoreSdkRuntimeIdentifier.StartsWith('win'))">h3.dll</_H3NativeLibName>
-    <_H3NativeLibName Condition="$(NETCoreSdkRuntimeIdentifier.StartsWith('linux'))">libh3.so</_H3NativeLibName>
-    <_H3NativeSrc>runtimes\$(NETCoreSdkRuntimeIdentifier)\native\$(_H3NativeLibName)</_H3NativeSrc>
+    <_H3HostArch>$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLowerInvariant())</_H3HostArch>
+    <_H3HostRid Condition="$([MSBuild]::IsOSPlatform('Windows'))">win-$(_H3HostArch)</_H3HostRid>
+    <_H3HostRid Condition="$([MSBuild]::IsOSPlatform('Linux'))">linux-$(_H3HostArch)</_H3HostRid>
+    <_H3HostRid Condition="$([MSBuild]::IsOSPlatform('Linux')) AND ($(NETCoreSdkRuntimeIdentifier.Contains('musl')) OR Exists('/etc/alpine-release'))">linux-musl-$(_H3HostArch)</_H3HostRid>
+    <_H3NativeLibName Condition="$([MSBuild]::IsOSPlatform('Windows'))">h3.dll</_H3NativeLibName>
+    <_H3NativeLibName Condition="$([MSBuild]::IsOSPlatform('Linux'))">libh3.so</_H3NativeLibName>
+    <_H3NativeSrc>runtimes\$(_H3HostRid)\native\$(_H3NativeLibName)</_H3NativeSrc>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(_H3NativeLibName)' != '' AND Exists('$(_H3NativeSrc)')">
