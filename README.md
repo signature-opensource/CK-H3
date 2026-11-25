@@ -198,6 +198,7 @@ The `CK.H3.Binaries` package includes prebuilt native binaries for the following
 | `linux-musl-arm64` | ARM64 | Linux with musl (Alpine) |
 
 The .NET runtime selects the binary: on Alpine, it uses the `linux-musl-*` folder before the `linux-*` folder.
+For Alpine, publish portable (no `-r`) or with `-r linux-musl-x64`: `-r linux-x64` selects the glibc build.
 
 The Linux binaries are H3 v4.4.1. `CK.H3.Binaries/build-native.sh` builds them again in Docker containers (Debian bookworm for glibc, Alpine 3.23 for musl).
 

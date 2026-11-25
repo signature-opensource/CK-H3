@@ -32,6 +32,26 @@ CMAKE_ARGS="-DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OF
 -DBUILD_BENCHMARKS=OFF -DBUILD_FUZZERS=OFF -DBUILD_FILTERS=OFF -DBUILD_GENERATORS=OFF \
 -DENABLE_DOCS=OFF -DENABLE_FORMAT=OFF -DENABLE_LINTING=OFF"
 
+ALL_RIDS=(linux-x64 linux-arm64 linux-musl-x64 linux-musl-arm64)
+RIDS=("$@")
+[ ${#RIDS[@]} -eq 0 ] && RIDS=("${ALL_RIDS[@]}")
+
+# Check everything before a file is overwritten.
+for rid in "${RIDS[@]}"; do
+    case " ${ALL_RIDS[*]} " in
+        *" $rid "*) ;;
+        *) echo "Unknown RID '$rid'. Known RIDs: ${ALL_RIDS[*]}." >&2; exit 1 ;;
+    esac
+done
+case " ${RIDS[*]} " in
+    *" linux-musl-arm64 "*)
+        if ! docker run --rm --platform linux/arm64 "$ALPINE_IMAGE" true >/dev/null 2>&1; then
+            echo "Docker cannot run linux/arm64 containers on this host (QEMU emulation is missing)." >&2
+            echo "Install the emulation, or give the RIDs without linux-musl-arm64." >&2
+            exit 1
+        fi ;;
+esac
+
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
@@ -58,9 +78,6 @@ build() {
 
 DEBIAN_INSTALL="apt-get update -qq && apt-get install -y -qq --no-install-recommends cmake make"
 ALPINE_INSTALL="apk add --no-cache -q gcc musl-dev cmake make"
-
-RIDS=("$@")
-[ ${#RIDS[@]} -eq 0 ] && RIDS=(linux-x64 linux-arm64 linux-musl-x64 linux-musl-arm64)
 
 for rid in "${RIDS[@]}"; do
     case "$rid" in
