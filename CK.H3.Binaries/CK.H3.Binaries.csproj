@@ -22,18 +22,31 @@
     Project-reference builds (e.g. unit tests referencing this project directly)
     do not go through NuGet restore, so no deps.json entries are generated for the
     native library.  Including the host-platform binary as a None item with
-    CopyToOutputDirectory="PreserveNewest" propagates it transitively through
+    CopyToOutputDirectory="IfDifferent" propagates it transitively through
     ProjectReference chains via GetCopyToOutputDirectoryItems.
     TargetPath places the file at the output root so LibraryImport("h3") finds it.
+    IfDifferent (not PreserveNewest): the same output folder can receive the glibc or the musl
+    build (a tree built in an Alpine container, then on the host), and both have the same timestamp.
+
+    The host RID is computed from the OS, the architecture of the SDK and an Alpine check. It does not
+    use NETCoreSdkRuntimeIdentifier as a whole: a distribution-built SDK reports a RID like
+    "ubuntu.24.04-x64" that matches no runtimes folder. Only its architecture suffix is used, because
+    the test host runs with the architecture of the SDK (an x64 SDK can run emulated on arm64).
+    Linux hosts use the glibc build, except Alpine (or a musl SDK) that uses the musl build.
   -->
   <PropertyGroup>
-    <_H3NativeLibName Condition="$(NETCoreSdkRuntimeIdentifier.StartsWith('win'))">h3.dll</_H3NativeLibName>
-    <_H3NativeLibName Condition="$(NETCoreSdkRuntimeIdentifier.StartsWith('linux'))">libh3.so</_H3NativeLibName>
-    <_H3NativeSrc>runtimes\$(NETCoreSdkRuntimeIdentifier)\native\$(_H3NativeLibName)</_H3NativeSrc>
+    <_H3HostArch Condition="'$(NETCoreSdkRuntimeIdentifier)' != ''">$(NETCoreSdkRuntimeIdentifier.Substring($([MSBuild]::Add($(NETCoreSdkRuntimeIdentifier.LastIndexOf('-')), 1))))</_H3HostArch>
+    <_H3HostArch Condition="'$(_H3HostArch)' == ''">$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLowerInvariant())</_H3HostArch>
+    <_H3HostRid Condition="$([MSBuild]::IsOSPlatform('Windows'))">win-$(_H3HostArch)</_H3HostRid>
+    <_H3HostRid Condition="$([MSBuild]::IsOSPlatform('Linux'))">linux-$(_H3HostArch)</_H3HostRid>
+    <_H3HostRid Condition="$([MSBuild]::IsOSPlatform('Linux')) AND ($(NETCoreSdkRuntimeIdentifier.Contains('musl')) OR Exists('/etc/alpine-release'))">linux-musl-$(_H3HostArch)</_H3HostRid>
+    <_H3NativeLibName Condition="$([MSBuild]::IsOSPlatform('Windows'))">h3.dll</_H3NativeLibName>
+    <_H3NativeLibName Condition="$([MSBuild]::IsOSPlatform('Linux'))">libh3.so</_H3NativeLibName>
+    <_H3NativeSrc>runtimes\$(_H3HostRid)\native\$(_H3NativeLibName)</_H3NativeSrc>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(_H3NativeLibName)' != '' AND Exists('$(_H3NativeSrc)')">
-    <None Include="$(_H3NativeSrc)" CopyToOutputDirectory="PreserveNewest" TargetPath="$(_H3NativeLibName)" Pack="false" />
+    <None Include="$(_H3NativeSrc)" CopyToOutputDirectory="IfDifferent" TargetPath="$(_H3NativeLibName)" Pack="false" />
   </ItemGroup>
 
 </Project>
